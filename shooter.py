@@ -39,6 +39,10 @@ pressRIGHT = K_d
 enemyList = []
 boostList = []
 
+#jugador = player(10,(255,0,0),5)
+#jugador.moving()
+
+
 class player(pygame.sprite.Sprite):
     def __init__(self, sideSize, color, speed):
         super().__init__()
@@ -212,8 +216,7 @@ class life(pygame.sprite.Sprite):
         self.rect.bottom = SCREEN_HEIGHT
         self.size = SCREEN_WIDTH
     def update(self, surface, playerLife):
-        newLife = playerLife
-        newSize = SCREEN_WIDTH*(newLife/self.originalLife)
+        newSize = SCREEN_WIDTH*(playerLife/self.originalLife)
         self.image = pygame.Surface([newSize,10])
         pygame.draw.rect(self.image, self.color, [0, 0, newSize, 10])
         self.rect = self.image.get_rect()
@@ -225,12 +228,6 @@ def displayText(surface,my_font,time,score):
     #time = my_font.render(str(time),0, (255,255,255))
     surface.blit(my_font.render(str(time),0, (255,255,255)),(10,10))
     surface.blit(my_font.render(str(score),0, (255,255,155)),(100,10))
-
-class level():
-    def go(self,n):
-        pygame.mixer.Sound('music/spawn.wav').play()
-        for i in range(0,n):
-            enemySpawn()
 
 class bullet(pygame.sprite.Sprite):
     def __init__(self, posx, posy, vx, vy):
@@ -281,7 +278,6 @@ def game():
     pygame.mixer.music.load('music/soundtrack_'+ str(track) + '.mp3')
     pygame.mixer.music.play(2)
     Clock = pygame.time.Clock()
-    game_1 = level()
     my_font = pygame.font.Font(None,30)
     #JUGADOR
     col = 0
@@ -292,161 +288,159 @@ def game():
     inGame = True
     gotHit = False
     spawning = True
+    playing = True
     enemySpawn()
     while inGame:
-        time = pygame.time.get_ticks()/1000
-        if(mainPlayer.life < 0):
-            inGame = False
-        Clock.tick(120)
-        time = pygame.time.get_ticks()/1000
-        for event in pygame.event.get():
-            if event.type == QUIT:
-                pygame.quit()
-                sys.exit()
-            elif event.type == KEYDOWN:
-                if event.key == pressRIGHT:
-                    mainPlayer.direction[0] = 1
-                elif event.key == pressLEFT:
-                    mainPlayer.direction[0] = -1
-                elif event.key == pressDOWN:
-                    mainPlayer.direction[1] = 1
-                elif event.key == pressUP:
-                    mainPlayer.direction[1] = -1
-                elif event.key == K_SPACE:
-                    game_1.go(enemyNumber)
-            elif event.type == KEYUP:
-                if event.key == pressRIGHT:
-                    if mainPlayer.direction[0] == 1:
-                        mainPlayer.direction[0] = 0
-                elif event.key == pressLEFT:
-                    if mainPlayer.direction[0] == -1:
-                        mainPlayer.direction[0] = 0
-                elif event.key == pressDOWN:
-                    if mainPlayer.direction[1] == 1:
-                        mainPlayer.direction[1] = 0
-                elif event.key == pressUP:
-                    if mainPlayer.direction[1] == -1:
-                        mainPlayer.direction[1] = 0
-            elif event.type == MOUSEBUTTONDOWN:
-                print(event.button)
-                if(event.button == 1):
-                    x,y = mainPlayer.rect.center
-                    x2,y2 = pygame.mouse.get_pos()
-                    direction = [1,1]
-                    dx = x2-x
-                    if dx < 0:
-                        direction[0] = -1
-                    dy = y2-y
-                    if dy < 0:
-                        direction[1] = -1
-                    if dx == 0:
-                        yComponent = 1
-                        xComponent = 0
-                    elif dy == 0:
-                        xComponent = 1
-                        yComponent = 0
-                    else:
-                        angle = np.arctan(np.abs(dy/dx))
-                        xComponent = np.cos(angle)*direction[0]
-                        yComponent = np.sin(angle)*direction[1]
-                    #print('xcomp : ' + str(xComponent))
-                    #print('ycomp : ' + str(yComponent))
-                    mainPlayer.shoot(x, y, xComponent, yComponent)
-                elif(event.button == 3):
-                    x,y = mainPlayer.rect.center
-                    x2,y2 = pygame.mouse.get_pos()
-                    direction = [1,1]
-                    dx = x2-x
-                    if dx < 0:
-                        direction[0] = -1
-                    dy = y2-y
-                    if dy < 0:
-                        direction[1] = -1
-                    if dx == 0:
-                        yComponent = 1
-                        xComponent = 0
-                    elif dy == 0:
-                        xComponent = 1
-                        yComponent = 0
-                    else:
-                        angle = np.arctan(np.abs(dy/dx))
-                        xComponent = np.cos(angle)*direction[0]
-                        yComponent = np.sin(angle)*direction[1]
-                    #print('xcomp : ' + str(xComponent))
-                    #print('ycomp : ' + str(yComponent))
-                    if(mainPlayer.score > 100):
-                        mainPlayer.shoot_bigBullet(x, y, xComponent, yComponent)
-                        mainPlayer.score -= 100
-        if(col < 8):
-            mainPlayer.newColor(colorList[int(col)])
-            col += 0.1
-        else:
-            col = 0
-            mainPlayer.newColor(colorList[int(col)])
+        if playing:
+            time = pygame.time.get_ticks()/1000
+            if(mainPlayer.life < 0):
+                pass #inGame = False
+            Clock.tick(120)
+            time = pygame.time.get_ticks()/1000
+            for event in pygame.event.get():
+                if event.type == QUIT:
+                    pygame.quit()
+                    sys.exit()
+                elif event.type == KEYDOWN:
+                    if event.key == pressRIGHT:
+                        mainPlayer.direction[0] = 1
+                    elif event.key == pressLEFT:
+                        mainPlayer.direction[0] = -1
+                    elif event.key == pressDOWN:
+                        mainPlayer.direction[1] = 1
+                    elif event.key == pressUP:
+                        mainPlayer.direction[1] = -1
+                elif event.type == KEYUP:
+                    if event.key == pressRIGHT:
+                        if mainPlayer.direction[0] == 1:
+                            mainPlayer.direction[0] = 0
+                    elif event.key == pressLEFT:
+                        if mainPlayer.direction[0] == -1:
+                            mainPlayer.direction[0] = 0
+                    elif event.key == pressDOWN:
+                        if mainPlayer.direction[1] == 1:
+                            mainPlayer.direction[1] = 0
+                    elif event.key == pressUP:
+                        if mainPlayer.direction[1] == -1:
+                            mainPlayer.direction[1] = 0
+                elif event.type == MOUSEBUTTONDOWN:
+                    print(event.button)
+                    if(event.button == 1):
+                        x,y = mainPlayer.rect.center
+                        x2,y2 = pygame.mouse.get_pos()
+                        direction = [1,1]
+                        dx = x2-x
+                        if dx < 0:
+                            direction[0] = -1
+                        dy = y2-y
+                        if dy < 0:
+                            direction[1] = -1
+                        if dx == 0:
+                            yComponent = 1
+                            xComponent = 0
+                        elif dy == 0:
+                            xComponent = 1
+                            yComponent = 0
+                        else:
+                            angle = np.arctan(np.abs(dy/dx))
+                            xComponent = np.cos(angle)*direction[0]
+                            yComponent = np.sin(angle)*direction[1]
+                        mainPlayer.shoot(x, y, xComponent, yComponent)
+                    elif(event.button == 3):
+                        x,y = mainPlayer.rect.center
+                        x2,y2 = pygame.mouse.get_pos()
+                        direction = [1,1]
+                        dx = x2-x
+                        if dx < 0:
+                            direction[0] = -1
+                        dy = y2-y
+                        if dy < 0:
+                            direction[1] = -1
+                        if dx == 0:
+                            yComponent = 1
+                            xComponent = 0
+                        elif dy == 0:
+                            xComponent = 1
+                            yComponent = 0
+                        else:
+                            angle = np.arctan(np.abs(dy/dx))
+                            xComponent = np.cos(angle)*direction[0]
+                            yComponent = np.sin(angle)*direction[1]
+                        #print('xcomp : ' + str(xComponent))
+                        #print('ycomp : ' + str(yComponent))
+                        if(mainPlayer.score > 100):
+                            mainPlayer.shoot_bigBullet(x, y, xComponent, yComponent)
+                            mainPlayer.score -= 100
+            if(col < 8):
+                mainPlayer.newColor(colorList[int(col)])
+                col += 0.1
+            else:
+                col = 0
+                mainPlayer.newColor(colorList[int(col)])
 
-        if gotHit == False:
-            screen.fill(BG_COLOR)
-        else:
-            screen.fill((25,0,0))
-            gotHit = False
-        if len(mainPlayer.bulletList)>0:
-            for x in mainPlayer.bulletList:
-                x.draw(screen)
-                x.trajectory()
-                if x.rect.top < 10 or x.rect.left < 10 or x.rect.bottom > SCREEN_HEIGHT-10 or x.rect.right > SCREEN_WIDTH-10:
-                    mainPlayer.bulletList.remove(x)
-                else:
-                    for enemy in enemyList:
-                        if(x.rect.colliderect(enemy.rect)):
-                            if enemy.size > 30:
-                                enemy.life -= x.damage
-                            else:
-                                enemy.life -= x.damage*3
-                            enemy.hit()
-                            mainPlayer.score += 1
-                            #mainPlayer.bulletList.remove(x)
-                            print(enemy.life)
-        if len(enemyList) > 0:
-            for enemy in enemyList:
-                if(enemy.rect.colliderect(mainPlayer.rect)):
-                    pygame.mixer.Sound('music/gothit.wav').play()
-                    #screen.fill(255,0,0)
-                    if enemy.size > 30:
-                        mainPlayer.life -= 1
+            if gotHit == False:
+                screen.fill(BG_COLOR)
+            else:
+                screen.fill((25,0,0))
+                gotHit = False
+            if len(mainPlayer.bulletList)>0:
+                for x in mainPlayer.bulletList:
+                    x.draw(screen)
+                    x.trajectory()
+                    if x.rect.top < 10 or x.rect.left < 10 or x.rect.bottom > SCREEN_HEIGHT-10 or x.rect.right > SCREEN_WIDTH-10:
+                        mainPlayer.bulletList.remove(x)
                     else:
-                        mainPlayer.life -= 5
-                    gotHit = True
-                if enemy.life > 0:
-                    enemy.update(screen)
-                else:
-                    pygame.mixer.Sound('music/enemyKill.wav').play()
-                    playerScore += 100
-                    enemyList.remove(enemy)
-        if len(boostList) > 0:
-            for boost in boostList:
-                if(boost.rect.colliderect(mainPlayer.rect)):
-                    pygame.mixer.Sound('music/powerup.wav').play()
-                    #screen.fill(255,0,0)
-                    mainPlayer.score += boost.score
-                    mainPlayer.life += boost.life
-                    boostList.remove(boost)
-                boost.update(screen)
-        mainPlayer.update(screen)
-        ## ENEMY spawn
-        if(int(time)%10 == 0):
-            if(spawning == True):
-                for i in range(0,(int(int(time)/10)*2+1)):
-                    enemySpawn()
-                if(int(time)%2 == 0):
-                    spawnBoost()
-                spawning = False
+                        for enemy in enemyList:
+                            if(x.rect.colliderect(enemy.rect)):
+                                if enemy.size > 30:
+                                    enemy.life -= x.damage
+                                else:
+                                    enemy.life -= x.damage*3
+                                enemy.hit()
+                                mainPlayer.score += 1
+                                #mainPlayer.bulletList.remove(x)
+                                print(enemy.life)
+            if len(enemyList) > 0:
+                for enemy in enemyList:
+                    if(enemy.rect.colliderect(mainPlayer.rect)):
+                        pygame.mixer.Sound('music/gothit.wav').play()
+                        #screen.fill(255,0,0)
+                        if enemy.size > 30:
+                            mainPlayer.life -= 1
+                        else:
+                            mainPlayer.life -= 5
+                        gotHit = True
+                    if enemy.life > 0:
+                        enemy.update(screen)
+                    else:
+                        pygame.mixer.Sound('music/enemyKill.wav').play()
+                        playerScore += 100
+                        enemyList.remove(enemy)
+            if len(boostList) > 0:
+                for boost in boostList:
+                    if(boost.rect.colliderect(mainPlayer.rect)):
+                        pygame.mixer.Sound('music/powerup.wav').play()
+                        #screen.fill(255,0,0)
+                        mainPlayer.score += boost.score
+                        mainPlayer.life += boost.life
+                        boostList.remove(boost)
+                    boost.update(screen)
+            mainPlayer.update(screen)
+            ## ENEMY spawn
+            if(int(time)%10 == 0):
+                if(spawning == True):
+                    for i in range(0,(int(int(time)/10)*2+1)):
+                        enemySpawn()
+                    if(int(time)%2 == 0):
+                        spawnBoost()
+                    spawning = False
 
-        elif(int(time)%11 == 1):
-            spawning = True
-        lifeBar.update(screen, mainPlayer.life)
-        #timeDisplay = my_font.render(str(time),0, (255,255,255))
-        #screen.blit(timeDisplay,(10,10))
-        displayText(screen,my_font,time,mainPlayer.score)
+            elif(int(time)%11 == 1):
+                spawning = True
+            lifeBar.update(screen, mainPlayer.life)
+            #timeDisplay = my_font.render(str(time),0, (255,255,255))
+            #screen.blit(timeDisplay,(10,10))
+            displayText(screen,my_font,time,mainPlayer.score)
         pygame.display.update()
 
 game()
